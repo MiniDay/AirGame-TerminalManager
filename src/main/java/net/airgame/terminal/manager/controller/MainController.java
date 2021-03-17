@@ -171,20 +171,20 @@ public class MainController {
 
             try {
                 ConfigManager.init();
-            } catch (Exception e) {
-                Platform.runLater(() -> TerminalUtils.error(e));
-            }
-            for (TerminalConfig config : ConfigManager.getTerminalConfigs()) {
-                MenuItem item = new MenuItem(config.getName());
-                quickStart.getItems().add(item);
+                for (TerminalConfig config : ConfigManager.getTerminalConfigs()) {
+                    MenuItem item = new MenuItem(config.getName());
+                    quickStart.getItems().add(item);
 
-                item.setOnAction(event -> addTerminal(
-                        config.getName(),
-                        config.getStartCommand(),
-                        new File(config.getWorkspace()),
-                        config.getInputCharset(),
-                        config.getOutputCharset()
-                ));
+                    item.setOnAction(event -> addTerminal(
+                            config.getName(),
+                            config.getStartCommand(),
+                            new File(config.getWorkspace()),
+                            config.getInputCharset(),
+                            config.getOutputCharset()
+                    ));
+                }
+            } catch (Exception e) {
+                TerminalUtils.error(e);
             }
 
             MenuItem item = new MenuItem("重载配置");
