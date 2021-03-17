@@ -31,7 +31,7 @@ public class ConfigManager {
         for (Map.Entry<String, HashMap<String, String>> entry : terminals.entrySet()) {
             HashMap<String, String> value = entry.getValue();
             terminalConfigs.add(new TerminalConfig(
-                    value.get("name"),
+                    entry.getKey(),
                     value.get("startCommand"),
                     value.get("workspace")
             ));

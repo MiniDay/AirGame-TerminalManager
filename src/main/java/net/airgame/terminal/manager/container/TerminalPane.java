@@ -21,6 +21,7 @@ public class TerminalPane extends AnchorPane {
         this("", "powershell", new File(""));
     }
 
+    @SuppressWarnings("CommentedOutCode")
     public TerminalPane(String name, String command, File workspace) throws IOException {
         this.name = name;
         outputTextArea = new TextArea();
@@ -39,7 +40,27 @@ public class TerminalPane extends AnchorPane {
         setLeftAnchor(inputField, 1D);
         setRightAnchor(inputField, 1D);
 
-        process = new ProcessBuilder().directory(workspace).command(command.split(" ")).start();
+        ProcessBuilder builder = new ProcessBuilder()
+                .directory(workspace)
+                .command(command.split(" "));
+
+        String path = builder.environment().getOrDefault("Path", "");
+        if (path.endsWith(";")) {
+            path += workspace.getAbsolutePath();
+        } else {
+            path += ";" + workspace.getAbsolutePath();
+        }
+        builder.environment().put("Path", path);
+
+        process = builder.start();
+
+//        process = new ProcessBuilder().directory(workspace).command("cmd").start();
+//        try {
+//            process.getOutputStream().write((command + "\n").getBytes(ConfigManager.getOutputCharset()));
+//            process.getOutputStream().flush();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         inputField.setOnAction(event -> {
             if (!process.isAlive()) {

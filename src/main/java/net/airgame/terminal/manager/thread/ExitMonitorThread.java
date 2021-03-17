@@ -25,9 +25,14 @@ public class ExitMonitorThread extends Thread {
                     continue;
                 }
                 int exitCode = process.exitValue();
-                Platform.runLater(() -> terminalPane.getOutputTextArea().appendText("程序已结束，退出代码: " + exitCode + "\n"));
+                Platform.runLater(() -> terminalPane.getOutputTextArea().appendText("\n\n程序已结束，退出代码: " + exitCode + "\n"));
                 terminalPanes.remove(i);
                 i--;
+            }
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }

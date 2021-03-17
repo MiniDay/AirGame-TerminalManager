@@ -3,10 +3,8 @@ outputCharset: "GBK"
 
 terminals:
   PowerShell:
-    name: "PowerShell"
     startCommand: "powershell"
     workspace: "."
   HamsterService:
-    name: "HamsterService"
     startCommand: "java -jar HamsterService.jar"
     workspace: "D:\\MinecraftServer\\HamsterService"
