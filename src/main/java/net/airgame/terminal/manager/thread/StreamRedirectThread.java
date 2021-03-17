@@ -21,28 +21,29 @@ public class StreamRedirectThread extends Thread {
     }
 
     @Override
+    @SuppressWarnings("BusyWait")
     public void run() {
         while (!stop) {
             for (int i = 0; i < controller.terminalPanes.size(); i++) {
                 TerminalPane terminalPane = controller.terminalPanes.get(i);
 
                 Process process = terminalPane.getProcess();
-                if (!process.isAlive()) {
-                    continue;
-                }
+//                if (!process.isAlive()) {
+//                    continue;
+//                }
 
                 try {
                     InputStream inputStream = process.getInputStream();
                     if (inputStream.available() > 0) {
                         int read = inputStream.read(bytes);
-                        String s = new String(bytes, 0, read, ConfigManager.getInputCharset());
+                        String s = new String(bytes, 0, read, terminalPane.getInputCharset());
                         Platform.runLater(() -> terminalPane.getOutputTextArea().appendText(s));
                     }
 
                     InputStream errorStream = process.getErrorStream();
                     if (errorStream.available() > 0) {
                         int read = errorStream.read(bytes);
-                        String s = new String(bytes, 0, read, ConfigManager.getInputCharset());
+                        String s = new String(bytes, 0, read, terminalPane.getInputCharset());
                         Platform.runLater(() -> terminalPane.getOutputTextArea().appendText(s));
                     }
                 } catch (IOException e) {

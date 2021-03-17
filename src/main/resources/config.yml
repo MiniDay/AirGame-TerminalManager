@@ -1,10 +1,31 @@
-inputCharset: "GBK"
-outputCharset: "GBK"
+inputCharset: "UTF-8"
+outputCharset: "UTF-8"
 
 terminals:
   PowerShell:
     startCommand: "powershell"
     workspace: "."
+    inputCharset: "GBK"
+    outputCharset: "GBK"
   HamsterService:
-    startCommand: "java -jar HamsterService.jar"
+    startCommand: "java -Dfile.encoding=UTF-8 -jar HamsterService.jar"
     workspace: "D:\\MinecraftServer\\HamsterService"
+  "BungeeCord - 1":
+    startCommand: "java -Dfile.encoding=UTF-8 -jar BungeeCord.jar"
+    workspace: "D:\\MinecraftServer\\BungeeCord - 1"
+    inputCharset: "GBK"
+    outputCharset: "GBK"
+  "BungeeCord - 2":
+    startCommand: "java -Dfile.encoding=UTF-8 -jar BungeeCord.jar"
+    workspace: "D:\\MinecraftServer\\BungeeCord - 2"
+    inputCharset: "GBK"
+    outputCharset: "GBK"
+  "Spigot-1.16.5":
+    startCommand: "java -Dfile.encoding=UTF-8 -jar spigot-1.16.5.jar nogui"
+    workspace: "D:\\MinecraftServer\\Spigot-1.16.5"
+  "Spigot-1.16.5 - Test1":
+    startCommand: "java -Dfile.encoding=UTF-8 -jar spigot-1.16.5.jar nogui"
+    workspace: "D:\\MinecraftServer\\Spigot-1.16.5 - Test1"
+  "Spigot-1.16.5 - Test2":
+    startCommand: "java -Dfile.encoding=UTF-8 -jar spigot-1.16.5.jar nogui"
+    workspace: "D:\\MinecraftServer\\Spigot-1.16.5 - Test2"

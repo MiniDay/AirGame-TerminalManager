@@ -16,6 +16,7 @@ public class ExitMonitorThread extends Thread {
     }
 
     @Override
+    @SuppressWarnings("BusyWait")
     public void run() {
         while (!stop) {
             for (int i = 0; i < terminalPanes.size(); i++) {

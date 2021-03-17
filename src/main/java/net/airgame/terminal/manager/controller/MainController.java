@@ -1,8 +1,6 @@
 package net.airgame.terminal.manager.controller;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -46,15 +44,21 @@ public class MainController {
                 MenuItem item = new MenuItem(config.getName());
                 quickStart.getItems().add(item);
 
-                item.setOnAction(event -> addTerminal(config.getName(), config.getStartCommand(), new File(config.getWorkspace())));
+                item.setOnAction(event -> addTerminal(
+                        config.getName(),
+                        config.getStartCommand(),
+                        new File(config.getWorkspace()),
+                        config.getInputCharset(),
+                        config.getOutputCharset()
+                ));
             }
         });
     }
 
-    public void addTerminal(String windowName, String startCommand, File workspace) {
+    public void addTerminal(String windowName, String startCommand, File workspace, String inputCharset, String outputCharset) {
         TerminalPane terminalPane;
         try {
-            terminalPane = new TerminalPane(windowName, startCommand, workspace);
+            terminalPane = new TerminalPane(windowName, startCommand, workspace, inputCharset, outputCharset);
         } catch (IOException e) {
             TerminalUtils.error(e);
             return;
@@ -100,7 +104,13 @@ public class MainController {
 
         String startCommand = map.get("startCommand");
 
-        addTerminal(windowName, startCommand, workspace);
+        addTerminal(
+                windowName,
+                startCommand,
+                workspace,
+                ConfigManager.getInputCharset(),
+                ConfigManager.getOutputCharset()
+        );
     }
 
     public void deleteTerminal() {

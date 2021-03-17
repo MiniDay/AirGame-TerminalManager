@@ -1,38 +1,45 @@
 package net.airgame.terminal.manager.data;
 
+import net.airgame.terminal.manager.core.ConfigManager;
+
 public class TerminalConfig {
-    private String name;
-    private String startCommand;
-    private String workspace;
+    private final String name;
+    private final String startCommand;
+    private final String workspace;
+
+    private final String inputCharset;
+    private final String outputCharset;
 
     public TerminalConfig(String name, String startCommand, String workspace) {
+        this(name, startCommand, workspace, null, null);
+    }
+
+    public TerminalConfig(String name, String startCommand, String workspace, String inputCharset, String outputCharset) {
         this.name = name;
         this.startCommand = startCommand;
         this.workspace = workspace;
+        this.inputCharset = inputCharset == null ? ConfigManager.getInputCharset() : inputCharset;
+        this.outputCharset = outputCharset == null ? ConfigManager.getOutputCharset() : outputCharset;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getStartCommand() {
         return startCommand;
-    }
-
-    public void setStartCommand(String startCommand) {
-        this.startCommand = startCommand;
     }
 
     public String getWorkspace() {
         return workspace;
     }
 
-    public void setWorkspace(String workspace) {
-        this.workspace = workspace;
+    public String getInputCharset() {
+        return inputCharset;
+    }
+
+    public String getOutputCharset() {
+        return outputCharset;
     }
 
     @Override
@@ -41,6 +48,8 @@ public class TerminalConfig {
                 "name='" + name + '\'' +
                 ", startCommand='" + startCommand + '\'' +
                 ", workspace='" + workspace + '\'' +
+                ", inputCharset='" + inputCharset + '\'' +
+                ", outputCharset='" + outputCharset + '\'' +
                 '}';
     }
 }

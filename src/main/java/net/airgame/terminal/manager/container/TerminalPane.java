@@ -14,16 +14,17 @@ public class TerminalPane extends AnchorPane {
     private final TextField inputField;
     private final Process process;
 
+    private final String inputCharset;
+    private final String outputCharset;
+
     private String name;
 
-    @SuppressWarnings("unused")
-    public TerminalPane() throws IOException {
-        this("", "powershell", new File(""));
-    }
-
     @SuppressWarnings("CommentedOutCode")
-    public TerminalPane(String name, String command, File workspace) throws IOException {
+    public TerminalPane(String name, String command, File workspace, String inputCharset, String outputCharset) throws IOException {
         this.name = name;
+        this.inputCharset = inputCharset;
+        this.outputCharset = outputCharset;
+
         outputTextArea = new TextArea();
         outputTextArea.setEditable(false);
         outputTextArea.setWrapText(true);
@@ -68,7 +69,7 @@ public class TerminalPane extends AnchorPane {
             }
             String text = inputField.getText() + "\n";
             try {
-                process.getOutputStream().write(text.getBytes(ConfigManager.getOutputCharset()));
+                process.getOutputStream().write(text.getBytes(getOutputCharset()));
                 process.getOutputStream().flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -97,6 +98,14 @@ public class TerminalPane extends AnchorPane {
 
     public TextArea getOutputTextArea() {
         return outputTextArea;
+    }
+
+    public String getInputCharset() {
+        return inputCharset;
+    }
+
+    public String getOutputCharset() {
+        return outputCharset;
     }
 
     public void closeProcess() {

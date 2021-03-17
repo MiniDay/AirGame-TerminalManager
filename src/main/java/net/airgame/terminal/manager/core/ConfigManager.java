@@ -30,10 +30,13 @@ public class ConfigManager {
         terminalConfigs = new ArrayList<>();
         for (Map.Entry<String, HashMap<String, String>> entry : terminals.entrySet()) {
             HashMap<String, String> value = entry.getValue();
+            System.out.println(value);
             terminalConfigs.add(new TerminalConfig(
                     entry.getKey(),
                     value.get("startCommand"),
-                    value.get("workspace")
+                    value.get("workspace"),
+                    value.get("inputCharset"),
+                    value.get("outputCharset")
             ));
         }
     }
