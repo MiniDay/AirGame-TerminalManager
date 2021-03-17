@@ -1,0 +1,178 @@
+package net.airgame.terminal.manager.controller;
+
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import net.airgame.terminal.manager.container.TerminalPane;
+import net.airgame.terminal.manager.core.ConfigManager;
+import net.airgame.terminal.manager.data.TerminalConfig;
+import net.airgame.terminal.manager.dialog.NewTerminalDialog;
+import net.airgame.terminal.manager.thread.ExitMonitorThread;
+import net.airgame.terminal.manager.thread.StreamRedirectThread;
+import net.airgame.terminal.manager.util.TerminalUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class MainController {
+    public final ArrayList<TerminalPane> terminalPanes;
+
+    public final StreamRedirectThread streamRedirectThread;
+    private final ExitMonitorThread exitMonitorThread;
+
+    @FXML
+    public ListView<String> listView;
+    @FXML
+    public AnchorPane mainPane;
+    @FXML
+    public MenuButton quickStart;
+
+    public MainController() {
+        terminalPanes = new ArrayList<>();
+
+        streamRedirectThread = new StreamRedirectThread(this);
+        streamRedirectThread.start();
+
+        exitMonitorThread = new ExitMonitorThread();
+        exitMonitorThread.start();
+
+        Platform.runLater(() -> {
+            for (TerminalConfig config : ConfigManager.getTerminalConfigs()) {
+                MenuItem item = new MenuItem(config.getName());
+                quickStart.getItems().add(item);
+
+                item.setOnAction(event -> addTerminal(config.getName(), config.getStartCommand(), new File(config.getWorkspace())));
+            }
+        });
+    }
+
+    public void addTerminal(String windowName, String startCommand, File workspace) {
+        TerminalPane terminalPane;
+        try {
+            terminalPane = new TerminalPane(windowName, startCommand, workspace);
+        } catch (IOException e) {
+            TerminalUtils.error(e);
+            return;
+        }
+        for (TerminalPane pane : terminalPanes) {
+            pane.setVisible(false);
+        }
+        terminalPanes.add(terminalPane);
+
+        mainPane.getChildren().add(terminalPane);
+        AnchorPane.setTopAnchor(terminalPane, 0D);
+        AnchorPane.setBottomAnchor(terminalPane, 0D);
+        AnchorPane.setLeftAnchor(terminalPane, 0D);
+        AnchorPane.setRightAnchor(terminalPane, 0D);
+        terminalPane.autosize();
+
+        listView.getItems().add(terminalPane.getName());
+        listView.getSelectionModel().selectLast();
+
+        exitMonitorThread.addTerminalPane(terminalPane);
+    }
+
+    public void newTerminal() {
+        NewTerminalDialog newTerminalDialog = new NewTerminalDialog();
+        newTerminalDialog.showAndWait();
+
+        HashMap<String, String> map = newTerminalDialog.getResult();
+        if (map == null) {
+            return;
+        }
+        System.out.println(map);
+        String windowName = map.get("windowName");
+        if (windowName == null || windowName.isEmpty()) {
+            new Alert(Alert.AlertType.ERROR, "窗口名称不能为空!").show();
+            return;
+        }
+
+        File workspace = new File(map.get("workspace"));
+        if (!workspace.exists()) {
+            new Alert(Alert.AlertType.ERROR, "文件夹 " + workspace.getAbsolutePath() + " 不存在!").show();
+            return;
+        }
+
+        String startCommand = map.get("startCommand");
+
+        addTerminal(windowName, startCommand, workspace);
+    }
+
+    public void deleteTerminal() {
+        int index = listView.getSelectionModel().getSelectedIndex();
+
+        if (index < 0) {
+            return;
+        }
+
+        TerminalPane choosePane = terminalPanes.get(index);
+
+        if (choosePane.getProcess().isAlive()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "该终端中的程序仍未结束，确定要强行关闭它吗？", ButtonType.YES, ButtonType.CANCEL);
+            alert.showAndWait();
+            if (alert.getResult().getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE) {
+                return;
+            }
+        }
+
+        terminalPanes.remove(index);
+        mainPane.getChildren().remove(choosePane);
+        choosePane.closeProcess();
+
+        if (index > 0) {
+            terminalPanes.get(index - 1).setVisible(true);
+        }
+
+        if (listView.getItems().size() > index) {
+            listView.getItems().remove(index);
+        }
+
+    }
+
+    public void renameTerminal() {
+        TextInputDialog dialog = new TextInputDialog("新名称");
+        dialog.setTitle("请输入新名称: ");
+        dialog.setHeaderText(null);
+
+        dialog.showAndWait();
+
+        int index = listView.getSelectionModel().getSelectedIndex();
+        if (index < 0) {
+            return;
+        }
+        if (listView.getItems().size() > index) {
+            listView.getItems().set(index, dialog.getResult());
+        }
+        if (terminalPanes.size() > index) {
+            terminalPanes.get(index).setName(dialog.getResult());
+        }
+        listView.getSelectionModel().select(index);
+    }
+
+    public void onMouseClicked() {
+        int index = listView.getSelectionModel().getSelectedIndex();
+
+        if (index < 0) {
+            return;
+        }
+
+        if (terminalPanes.size() > index) {
+            for (int i = 0; i < terminalPanes.size(); i++) {
+                terminalPanes.get(i).setVisible(index == i);
+            }
+        }
+    }
+
+    public StreamRedirectThread getStreamRedirectThread() {
+        return streamRedirectThread;
+    }
+
+    public ExitMonitorThread getExitMonitorThread() {
+        return exitMonitorThread;
+    }
+}
