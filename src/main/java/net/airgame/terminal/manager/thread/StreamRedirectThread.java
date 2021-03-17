@@ -3,7 +3,6 @@ package net.airgame.terminal.manager.thread;
 import javafx.application.Platform;
 import net.airgame.terminal.manager.container.TerminalPane;
 import net.airgame.terminal.manager.controller.MainController;
-import net.airgame.terminal.manager.core.ConfigManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +15,7 @@ public class StreamRedirectThread extends Thread {
 
     public StreamRedirectThread(MainController controller) {
         this.controller = controller;
-        bytes = new byte[1024];
+        bytes = new byte[1024 * 1024];
         stop = false;
     }
 
@@ -28,9 +27,6 @@ public class StreamRedirectThread extends Thread {
                 TerminalPane terminalPane = controller.terminalPanes.get(i);
 
                 Process process = terminalPane.getProcess();
-//                if (!process.isAlive()) {
-//                    continue;
-//                }
 
                 try {
                     InputStream inputStream = process.getInputStream();

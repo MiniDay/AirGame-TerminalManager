@@ -6,7 +6,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import net.airgame.terminal.manager.controller.MainController;
-import net.airgame.terminal.manager.core.ConfigManager;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -23,14 +22,6 @@ public class Bootstrap extends Application {
                 System.exit(0);
                 return;
             }
-        }
-
-        try {
-            ConfigManager.init();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(0);
-            return;
         }
 
         launch(args);

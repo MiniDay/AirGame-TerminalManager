@@ -10,10 +10,6 @@ public class TerminalConfig {
     private final String inputCharset;
     private final String outputCharset;
 
-    public TerminalConfig(String name, String startCommand, String workspace) {
-        this(name, startCommand, workspace, null, null);
-    }
-
     public TerminalConfig(String name, String startCommand, String workspace, String inputCharset, String outputCharset) {
         this.name = name;
         this.startCommand = startCommand;

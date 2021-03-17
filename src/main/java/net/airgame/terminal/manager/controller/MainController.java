@@ -39,20 +39,7 @@ public class MainController {
         exitMonitorThread = new ExitMonitorThread();
         exitMonitorThread.start();
 
-        Platform.runLater(() -> {
-            for (TerminalConfig config : ConfigManager.getTerminalConfigs()) {
-                MenuItem item = new MenuItem(config.getName());
-                quickStart.getItems().add(item);
-
-                item.setOnAction(event -> addTerminal(
-                        config.getName(),
-                        config.getStartCommand(),
-                        new File(config.getWorkspace()),
-                        config.getInputCharset(),
-                        config.getOutputCharset()
-                ));
-            }
-        });
+        reloadConfig();
     }
 
     public void addTerminal(String windowName, String startCommand, File workspace, String inputCharset, String outputCharset) {
@@ -164,7 +151,7 @@ public class MainController {
         listView.getSelectionModel().select(index);
     }
 
-    public void onMouseClicked() {
+    public void changeTerminal() {
         int index = listView.getSelectionModel().getSelectedIndex();
 
         if (index < 0) {
@@ -176,6 +163,34 @@ public class MainController {
                 terminalPanes.get(i).setVisible(index == i);
             }
         }
+    }
+
+    public void reloadConfig() {
+        Platform.runLater(() -> {
+            quickStart.getItems().clear();
+
+            try {
+                ConfigManager.init();
+            } catch (Exception e) {
+                Platform.runLater(() -> TerminalUtils.error(e));
+            }
+            for (TerminalConfig config : ConfigManager.getTerminalConfigs()) {
+                MenuItem item = new MenuItem(config.getName());
+                quickStart.getItems().add(item);
+
+                item.setOnAction(event -> addTerminal(
+                        config.getName(),
+                        config.getStartCommand(),
+                        new File(config.getWorkspace()),
+                        config.getInputCharset(),
+                        config.getOutputCharset()
+                ));
+            }
+
+            MenuItem item = new MenuItem("重载配置");
+            quickStart.getItems().add(item);
+            item.setOnAction(event -> reloadConfig());
+        });
     }
 
     public StreamRedirectThread getStreamRedirectThread() {

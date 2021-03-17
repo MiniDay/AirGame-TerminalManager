@@ -19,7 +19,7 @@
                     prefHeight="414.0" prefWidth="157.0" vvalue="0.68" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="35.0">
             <ListView fx:id="listView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-                      onMouseClicked="#onMouseClicked" prefHeight="406.0" prefWidth="155.0"/>
+                      onMouseClicked="#changeTerminal" prefHeight="406.0" prefWidth="155.0"/>
         </ScrollPane>
     </AnchorPane>
     <AnchorPane fx:id="mainPane" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0"/>
