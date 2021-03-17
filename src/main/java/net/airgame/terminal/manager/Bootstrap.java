@@ -3,8 +3,12 @@ package net.airgame.terminal.manager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import net.airgame.terminal.manager.container.TerminalPane;
 import net.airgame.terminal.manager.controller.MainController;
 
 import java.io.File;
@@ -41,6 +45,23 @@ public class Bootstrap extends Application {
 
         stage.setOnCloseRequest(event -> {
             MainController controller = fxmlLoader.getController();
+            for (TerminalPane pane : controller.getTerminalPanes()) {
+                if (pane.getProcess().isAlive()) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING, "确定要强行停止正在运行的所有控制台并关闭程序吗？", ButtonType.OK, ButtonType.CANCEL);
+                    alert.showAndWait();
+                    if (alert.getResult().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                        break;
+                    } else {
+                        event.consume();
+                        return;
+                    }
+                }
+            }
+
+            for (TerminalPane pane : controller.getTerminalPanes()) {
+                pane.closeProcess();
+            }
+
             controller.getStreamRedirectThread().setStop(true);
             controller.getExitMonitorThread().setStop(true);
         });

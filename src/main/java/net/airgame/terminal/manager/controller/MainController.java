@@ -193,6 +193,10 @@ public class MainController {
         });
     }
 
+    public ArrayList<TerminalPane> getTerminalPanes() {
+        return terminalPanes;
+    }
+
     public StreamRedirectThread getStreamRedirectThread() {
         return streamRedirectThread;
     }
