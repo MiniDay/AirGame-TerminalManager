@@ -18,7 +18,6 @@ public class TerminalPane extends AnchorPane {
 
     private String name;
 
-    @SuppressWarnings("CommentedOutCode")
     public TerminalPane(String name, String command, File workspace, String inputCharset, String outputCharset) throws IOException {
         this.name = name;
         this.inputCharset = inputCharset;
@@ -54,14 +53,6 @@ public class TerminalPane extends AnchorPane {
 
         process = builder.start();
 
-//        process = new ProcessBuilder().directory(workspace).command("cmd").start();
-//        try {
-//            process.getOutputStream().write((command + "\n").getBytes(ConfigManager.getOutputCharset()));
-//            process.getOutputStream().flush();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         inputField.setOnAction(event -> {
             if (!process.isAlive()) {
                 return;
@@ -75,6 +66,8 @@ public class TerminalPane extends AnchorPane {
             }
             Platform.runLater(inputField::clear);
         });
+
+        outputTextArea.focusedProperty().addListener((observable, oldValue, newValue) -> outputTextArea.setEditable(!newValue));
 
         visibleProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
