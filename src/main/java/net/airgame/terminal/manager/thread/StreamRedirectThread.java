@@ -1,6 +1,7 @@
 package net.airgame.terminal.manager.thread;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextArea;
 import net.airgame.terminal.manager.container.TerminalPane;
 import net.airgame.terminal.manager.controller.MainController;
 
@@ -28,23 +29,31 @@ public class StreamRedirectThread extends Thread {
 
                 Process process = terminalPane.getProcess();
 
+                TextArea area = terminalPane.getOutputTextArea();
                 try {
                     InputStream inputStream = process.getInputStream();
                     if (inputStream.available() > 0) {
                         int read = inputStream.read(bytes);
                         String s = new String(bytes, 0, read, terminalPane.getInputCharset());
-                        Platform.runLater(() -> terminalPane.getOutputTextArea().appendText(s));
+                        Platform.runLater(() -> area.appendText(s));
                     }
 
                     InputStream errorStream = process.getErrorStream();
                     if (errorStream.available() > 0) {
                         int read = errorStream.read(bytes);
                         String s = new String(bytes, 0, read, terminalPane.getInputCharset());
-                        Platform.runLater(() -> terminalPane.getOutputTextArea().appendText(s));
+                        Platform.runLater(() -> area.appendText(s));
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+                Platform.runLater(() -> {
+                    int subLength = area.getText().length() - 50000;
+                    if (subLength > 1000) {
+                        area.deleteText(0, subLength);
+                    }
+                });
             }
             try {
                 Thread.sleep(300);
