@@ -35,25 +35,31 @@ public class StreamRedirectThread extends Thread {
                     if (inputStream.available() > 0) {
                         int read = inputStream.read(bytes);
                         String s = new String(bytes, 0, read, terminalPane.getInputCharset());
-                        Platform.runLater(() -> area.appendText(s));
+                        Platform.runLater(() -> {
+                            int subLength = area.getText().length() - 50000;
+                            if (subLength > 1000) {
+                                area.deleteText(0, subLength);
+                            }
+                            area.appendText(s);
+                        });
                     }
 
                     InputStream errorStream = process.getErrorStream();
                     if (errorStream.available() > 0) {
                         int read = errorStream.read(bytes);
                         String s = new String(bytes, 0, read, terminalPane.getInputCharset());
-                        Platform.runLater(() -> area.appendText(s));
+                        Platform.runLater(() -> {
+                            int subLength = area.getText().length() - 50000;
+                            if (subLength > 1000) {
+                                area.deleteText(0, subLength);
+                            }
+                            area.appendText(s);
+                        });
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                Platform.runLater(() -> {
-                    int subLength = area.getText().length() - 50000;
-                    if (subLength > 1000) {
-                        area.deleteText(0, subLength);
-                    }
-                });
             }
             try {
                 Thread.sleep(300);
