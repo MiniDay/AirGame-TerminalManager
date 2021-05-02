@@ -8,8 +8,6 @@ import net.airgame.terminal.manager.container.TerminalPane;
 import net.airgame.terminal.manager.core.ConfigManager;
 import net.airgame.terminal.manager.data.TerminalConfig;
 import net.airgame.terminal.manager.dialog.NewTerminalDialog;
-import net.airgame.terminal.manager.thread.ExitMonitorThread;
-import net.airgame.terminal.manager.thread.StreamRedirectThread;
 import net.airgame.terminal.manager.util.TerminalUtils;
 
 import java.io.File;
@@ -20,9 +18,6 @@ import java.util.HashMap;
 public class MainController {
     public final ArrayList<TerminalPane> terminalPanes;
 
-    public final StreamRedirectThread streamRedirectThread;
-    private final ExitMonitorThread exitMonitorThread;
-
     @FXML
     public ListView<String> listView;
     @FXML
@@ -32,13 +27,6 @@ public class MainController {
 
     public MainController() {
         terminalPanes = new ArrayList<>();
-
-        streamRedirectThread = new StreamRedirectThread(this);
-        streamRedirectThread.start();
-
-        exitMonitorThread = new ExitMonitorThread();
-        exitMonitorThread.start();
-
         reloadConfig();
     }
 
@@ -64,8 +52,6 @@ public class MainController {
 
         listView.getItems().add(terminalPane.getName());
         listView.getSelectionModel().selectLast();
-
-        exitMonitorThread.addTerminalPane(terminalPane);
     }
 
     public void newTerminal() {
@@ -195,13 +181,5 @@ public class MainController {
 
     public ArrayList<TerminalPane> getTerminalPanes() {
         return terminalPanes;
-    }
-
-    public StreamRedirectThread getStreamRedirectThread() {
-        return streamRedirectThread;
-    }
-
-    public ExitMonitorThread getExitMonitorThread() {
-        return exitMonitorThread;
     }
 }

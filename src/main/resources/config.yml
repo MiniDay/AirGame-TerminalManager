@@ -13,13 +13,13 @@ terminals:
   "BungeeCord - 1":
     startCommand: "java -Dfile.encoding=UTF-8 -jar BungeeCord.jar"
     workspace: "D:\\MinecraftServer\\BungeeCord - 1"
-    inputCharset: "GBK"
-    outputCharset: "GBK"
+    inputCharset: "UTF-8"
+    outputCharset: "UTF-8"
   "BungeeCord - 2":
-    startCommand: "java -Dfile.encoding=UTF-8 -jar BungeeCord.jar"
+    startCommand: "java -Dfile.encoding=UTF-8 -Djline.terminal=jline.UnsupportedTerminal -jar BungeeCord.jar"
     workspace: "D:\\MinecraftServer\\BungeeCord - 2"
-    inputCharset: "GBK"
-    outputCharset: "GBK"
+    inputCharset: "UTF-8"
+    outputCharset: "UTF-8"
   "Spigot-1.16.5":
     startCommand: "java -Dfile.encoding=UTF-8 -jar spigot-1.16.5.jar nogui"
     workspace: "D:\\MinecraftServer\\Spigot-1.16.5"

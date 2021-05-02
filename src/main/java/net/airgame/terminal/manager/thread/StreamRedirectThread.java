@@ -2,68 +2,57 @@ package net.airgame.terminal.manager.thread;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
-import net.airgame.terminal.manager.container.TerminalPane;
-import net.airgame.terminal.manager.controller.MainController;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class StreamRedirectThread extends Thread {
-    private final MainController controller;
-
+    private final InputStream inputStream;
+    private final TextArea area;
     private final byte[] bytes;
+    private final String charset;
     private volatile boolean stop;
 
-    public StreamRedirectThread(MainController controller) {
-        this.controller = controller;
+    private Process process;
+
+    public StreamRedirectThread(InputStream inputStream, TextArea area, String charset) {
+        this.inputStream = inputStream;
+        this.area = area;
+        this.charset = charset;
+        bytes = new byte[1024 * 1024];
+        stop = false;
+    }
+
+    public StreamRedirectThread(Process process, InputStream inputStream, TextArea area, String charset) {
+        this.process = process;
+        this.inputStream = inputStream;
+        this.area = area;
+        this.charset = charset;
+
         bytes = new byte[1024 * 1024];
         stop = false;
     }
 
     @Override
-    @SuppressWarnings("BusyWait")
     public void run() {
         while (!stop) {
-            for (int i = 0; i < controller.terminalPanes.size(); i++) {
-                TerminalPane terminalPane = controller.terminalPanes.get(i);
-
-                Process process = terminalPane.getProcess();
-
-                TextArea area = terminalPane.getOutputTextArea();
-                try {
-                    InputStream inputStream = process.getInputStream();
-                    if (inputStream.available() > 0) {
-                        int read = inputStream.read(bytes);
-                        String s = new String(bytes, 0, read, terminalPane.getInputCharset());
-                        Platform.runLater(() -> {
-                            int subLength = area.getText().length() - 50000;
-                            if (subLength > 1000) {
-                                area.deleteText(0, subLength);
-                            }
-                            area.appendText(s);
-                        });
-                    }
-
-                    InputStream errorStream = process.getErrorStream();
-                    if (errorStream.available() > 0) {
-                        int read = errorStream.read(bytes);
-                        String s = new String(bytes, 0, read, terminalPane.getInputCharset());
-                        Platform.runLater(() -> {
-                            int subLength = area.getText().length() - 50000;
-                            if (subLength > 1000) {
-                                area.deleteText(0, subLength);
-                            }
-                            area.appendText(s);
-                        });
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
             try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
+                int read = inputStream.read(bytes);
+                if (read <= 0) {
+                    printExit();
+                    break;
+                }
+                String output = new String(bytes, 0, read, charset);
+                Platform.runLater(() -> {
+                    area.appendText(output);
+                    String text = area.getText();
+                    int subLength = text.length() - 50000;
+                    if (subLength > 1000) {
+                        area.setText(
+                                text.substring(subLength)
+                        );
+                    }
+                });
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -71,5 +60,22 @@ public class StreamRedirectThread extends Thread {
 
     public void setStop(boolean stop) {
         this.stop = stop;
+    }
+
+    private void printExit() {
+        if (process == null) {
+            return;
+        }
+        int exitValue = process.exitValue();
+        Platform.runLater(() -> {
+            area.appendText("\n\n程序已结束，退出代码: " + exitValue + "\n");
+            String text = area.getText();
+            int subLength = text.length() - 50000;
+            if (subLength > 1000) {
+                area.setText(
+                        text.substring(subLength)
+                );
+            }
+        });
     }
 }

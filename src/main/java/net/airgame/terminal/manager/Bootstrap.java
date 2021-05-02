@@ -15,6 +15,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+@SuppressWarnings("ConstantConditions")
 public class Bootstrap extends Application {
     public static void main(String[] args) {
         File file = new File("config.yml");
@@ -62,8 +63,6 @@ public class Bootstrap extends Application {
                 pane.closeProcess();
             }
 
-            controller.getStreamRedirectThread().setStop(true);
-            controller.getExitMonitorThread().setStop(true);
         });
 
     }
