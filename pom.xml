@@ -48,28 +48,23 @@
 
     <repositories>
         <repository>
-            <id>hamster3</id>
-            <url>http://maven.hamster3.cn/repository/maven-public/</url>
+            <id>hamster-repo</id>
+            <url>http://maven.hamster3.cn/maven-public</url>
         </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>hamster-repo</id>
+            <url>http://maven.hamster3.cn/hamster-repo</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
             <version>1.28</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>11.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>11.0.1</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
