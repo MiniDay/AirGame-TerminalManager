@@ -2,56 +2,39 @@ package net.airgame.terminal.manager.thread;
 
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
-
-import java.io.InputStream;
+import net.airgame.terminal.manager.container.TerminalPane;
 
 public class StreamRedirectThread extends Thread {
-    private final InputStream inputStream;
-    private final TextArea area;
-    private final byte[] bytes;
-    private final String charset;
+    private final TerminalPane pane;
+    private final Process process;
+
     private volatile boolean stop;
 
-    private Process process;
+    public StreamRedirectThread(TerminalPane pane) {
+        this.pane = pane;
+        process = pane.getProcess();
 
-    public StreamRedirectThread(InputStream inputStream, TextArea area, String charset) {
-        this.inputStream = inputStream;
-        this.area = area;
-        this.charset = charset;
-        bytes = new byte[1024 * 1024];
-        stop = false;
-    }
-
-    public StreamRedirectThread(Process process, InputStream inputStream, TextArea area, String charset) {
-        this.process = process;
-        this.inputStream = inputStream;
-        this.area = area;
-        this.charset = charset;
-
-        bytes = new byte[1024 * 1024];
         stop = false;
     }
 
     @Override
     public void run() {
+        byte[] bytes = new byte[1024 * 1024];
         while (!stop) {
             try {
-                int read = inputStream.read(bytes);
-                if (read <= 0) {
+                int readSize = process.getInputStream().read(bytes);
+                if (readSize <= 0) {
                     printExit();
                     break;
                 }
-                String output = new String(bytes, 0, read, charset);
-                Platform.runLater(() -> {
-                    area.appendText(output);
-                    String text = area.getText();
-                    int subLength = text.length() - 50000;
-                    if (subLength > 1000) {
-                        area.setText(
-                                text.substring(subLength)
-                        );
+                String output = new String(bytes, 0, readSize, pane.getInputCharset());
+                if (process.getErrorStream().available() > 0) {
+                    readSize = process.getErrorStream().read(bytes);
+                    if (readSize > 0) {
+                        output = output + new String(bytes, 0, readSize, pane.getInputCharset());
                     }
-                });
+                }
+                printText(output);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -62,20 +45,24 @@ public class StreamRedirectThread extends Thread {
         this.stop = stop;
     }
 
+    private void printText(String output) {
+        Platform.runLater(() -> {
+            TextArea textArea = pane.getOutputTextArea();
+            textArea.appendText(output);
+            String text = textArea.getText();
+            int subLength = text.length() - 50000;
+            if (subLength <= 1000) {
+                return;
+            }
+            textArea.setText(text.substring(subLength));
+        });
+    }
+
     private void printExit() {
         if (process == null) {
             return;
         }
         int exitValue = process.exitValue();
-        Platform.runLater(() -> {
-            area.appendText("\n\n程序已结束，退出代码: " + exitValue + "\n");
-            String text = area.getText();
-            int subLength = text.length() - 50000;
-            if (subLength > 1000) {
-                area.setText(
-                        text.substring(subLength)
-                );
-            }
-        });
+        printText("\n程序已结束，退出代码: " + exitValue + "\n");
     }
 }

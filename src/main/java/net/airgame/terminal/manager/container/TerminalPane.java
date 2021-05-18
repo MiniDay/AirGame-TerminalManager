@@ -16,7 +16,6 @@ public class TerminalPane extends AnchorPane {
     private final String inputCharset;
     private final String outputCharset;
     private final StreamRedirectThread outputRedirectThread;
-    private final StreamRedirectThread errorRedirectThread;
     private String name;
 
     public TerminalPane(String name, String command, File workspace, String inputCharset, String outputCharset) throws IOException {
@@ -76,10 +75,8 @@ public class TerminalPane extends AnchorPane {
             }
         });
 
-        outputRedirectThread = new StreamRedirectThread(process, process.getInputStream(), outputTextArea, getInputCharset());
-        errorRedirectThread = new StreamRedirectThread(process.getErrorStream(), outputTextArea, getInputCharset());
+        outputRedirectThread = new StreamRedirectThread(this);
         outputRedirectThread.start();
-        errorRedirectThread.start();
     }
 
     public String getName() {
@@ -107,10 +104,9 @@ public class TerminalPane extends AnchorPane {
     }
 
     public void closeProcess() {
+        outputRedirectThread.setStop(true);
         if (process.isAlive()) {
             process.destroy();
         }
-        outputRedirectThread.setStop(true);
-        errorRedirectThread.setStop(true);
     }
 }
